@@ -44,8 +44,8 @@ def export_to_string(model, inputs, *args, **kwargs):
 
 
 class TestModels(TestCase):
-    def exportTest(self, model, inputs, subname=None):
-        binary_pb = export_to_string(model, inputs, export_params=False)
+    def exportTest(self, model, inputs, subname=None, **kwargs):
+        binary_pb = export_to_string(model, inputs, export_params=False, **kwargs)
         model_def = onnx.ModelProto.FromString(binary_pb)
         onnx.checker.check_model(model_def)
         onnx.helper.strip_doc_string(model_def)
@@ -230,6 +230,15 @@ class TestModels(TestCase):
         model_name = 'GRU'
         self.run_word_language_model(model_name)
 
+    def test_variable_naming(self):
+        model=torch.nn.Sequential(torch.nn.Linear(3,2), torch.nn.Linear(2,1))
+        x = Variable(torch.randn(10, 3), name="x")
+        self.exportTest(model, x)
+
+    def test_input_output_naming(self):
+        model=torch.nn.Sequential(torch.nn.Linear(3,2), torch.nn.Linear(2,1))
+        x = Variable(torch.randn(10, 3), name="x")
+        self.exportTest(model, x, input_names=["in1", "in2", "in3", "in4", "in5"], output_names=["out1"])
 
 if __name__ == '__main__':
     run_tests()

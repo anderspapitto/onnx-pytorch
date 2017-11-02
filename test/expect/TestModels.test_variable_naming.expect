@@ -1,0 +1,13 @@
+graph torch-jit-export (
+  %x[FLOAT, 10x3]
+  %1[FLOAT, 2x3]
+  %2[FLOAT, 2]
+  %3[FLOAT, 1x2]
+  %4[FLOAT, 1]
+) {
+  %5 = Transpose[perm = [1, 0]](%1)
+  %7 = Gemm[alpha = 1, beta = 1, broadcast = 1](%x, %5, %2)
+  %8 = Transpose[perm = [1, 0]](%3)
+  %10 = Gemm[alpha = 1, beta = 1, broadcast = 1](%7, %8, %4)
+  return %10
+}
